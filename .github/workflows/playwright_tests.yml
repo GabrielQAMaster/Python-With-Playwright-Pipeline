@@ -1,0 +1,50 @@
+name: Playwright Frontend Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install Playwright Browsers
+      run: |
+        python -m playwright install
+
+    - name: Run Playwright tests
+      run: |
+        pytest test_linkedin_login_frontend.py
+      continue-on-error: true  # Continue to next step even if tests fail
+
+    - name: Upload Test Artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-videos
+        path: videos/  # Adjust this path if videos are saved elsewhere
+
+    - name: Upload Log Files
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: logs
+        path: frontend_validation.log
